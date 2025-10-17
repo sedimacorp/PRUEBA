@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VIGIMAN</title>
+  
+
+  <style>
+/* ================= ESTILO GENERAL DE LA PÁGINA ================= */
+    html, body {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+  width: 100vw; height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #fff;
+    }
+/* NUEVO CONTENEDOR PRINCIPAL */
+.layout-container {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
+}
+/* Laterales: ancho fijo, toda la altura */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  width: 370px;
+  min-width: 340px;
+  max-width: 420px;
+  height: 100vh;
+  background: #f7faf9;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.267);
+  z-index: 10;
+  padding: 0;
+  box-sizing: border-box;
+   overflow: hidden;
+}
+.sidebar.left {
+  border-radius: 0 15px 15px 0;
+  padding: 18px 10px 14px 18px; 
+  width: 460px;
+  min-width: 420px;
+  max-width: 540px;
+  display: flex; 
+  flex-direction: column;
+}
+ 
+.flex-spacer { flex: 1 1 auto; } 
+
+.sidebar.right { 
+  border-radius: 15px 0 0 15px;
+  padding: 20px 16px 14px 10px;
+  background: rgba(212, 13, 13, 0.781);
+  color: #fff;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.667);
+  max-height: 100vh;
+  overflow-y: auto;
+}
+/* Documentos de ingeniería */
+#docsBox {
+  flex: 1;
+  width: 100%;
+  max-height: 100vh;
+  overflow-y: auto;}
+.doc-link {
+    display: block;
+    margin: 6px 0;
+    color: #e5dada;
+    text-decoration: none;
+    font-size: 15px;
+    font-family: sans-serif;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+.doc-link:hover {
+    background: #c52a2ae0;
+    text-decoration: underline;
+}
+
+
+/* InfoBox y Forms dentro del sidebar izquierdo */
+#infoBox {
+  background:#032480c7;
+  color: #f7faf9;
+  border-radius: 10px;
+  padding: 20px;
+  font-size: 14px;
+  width: 100%;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  flex-grow: 0;
+  flex-basis: auto;
+  font-family: sans-serif;
+  box-shadow: 0 4px 4px rgb(0,0,0);
+  text-align: center;
+  }
+
+  #formManttoBoxFixed {
+  width: 100%;
+  margin-top: 0px;
+  padding-bottom: 8px;
+  background: #fffafdcc;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.267);
+  border-radius: 8px;
+  max-height: 400px;         /* Ajusta según tu pantalla de portátil */
+  overflow-y: auto;
+}
+#formManttoBoxFixed iframe {
+  width: 100%;
+  max-height: 400px;         /* Ajusta aquí también */
+  border: none; 
+  border-radius: 7px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+}
+.infoBox-main-title {
+  font-size: 16px;
+  color: #ffffff;
+  background: #013177;
+  border-radius: 10px 10px 0 0;
+  font-weight: 700;
+  padding: 7px 0;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 5px #0006;
+}
+
+/* ================= PANEL DEL VISOR 3D CENTRO================= */
+    #visor-container { 
+flex: 2.5 1 0%;
+  min-width: 500px;
+  height: 100vh;
+  margin: 0 12px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+    }
+/*-- ============== LOGO SEDIMA ============== */
+    #logosedima {
+      position: absolute;        
+      top: 10px;                 
+      left: 10px;                
+      width: 120px;              
+      opacity: 0.9;              
+      z-index: 2;               
+      pointer-events: none;
+    }
+
+/*-- ============== LOGO CLIENTE ============== */
+    #logocliente {
+      position: absolute;        
+      top: 10px;                 
+      right:10px;                
+      width: 80px;               
+      opacity: 0.9;              
+      z-index: 2;               
+      pointer-events: none;
+    }
+canvas { 
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* ================= BOTÓN DE DESCARGA DEL VISOR ================= */
+/* Contenedor para botones en columna */
+.visor-download-btns-col {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 22;
+}
+
+/* Botón sin posición absoluta, para mejor control en columna */
+.visor-download-btn {
+  background: #787878;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 10px; 
+  cursor: pointer;
+  font-size: 10px; 
+  font-weight: bold;
+  box-shadow: 0 2px 18px rgba(5, 6, 6, 0.267);
+  opacity: 0.94;
+  transition: opacity 0.18s;
+  width: 200px; /* O ajusta según tu gusto */
+  margin: 0;
+}
+
+/* Hover (se mantiene igual) */
+.visor-download-btn:hover {
+  opacity: 1;
+  background: #001d7a;
+}
+
+ 
+
+  /* ================= BOTONES DE PDF ================= */       
+    .pdf-button { 
+      background: #041daa86; 
+      color: #ffffff; 
+      padding: 5px 10px; 
+      margin: 4px 0; 
+      border: none;
+      border-radius: 6px; 
+      cursor: pointer; 
+      font-size: 13px; 
+      width: 100%; 
+      text-align: center; 
+    }
+    .pdf-button:hover { background: #460303; }
+
+
+
+  /* ================= IMAGEN DEL INFOBOX ================= */       
+    .element-img {
+      background-color: #ffffff;
+      max-width:55%;
+      height: auto;
+      border-radius: 10px;
+      margin: 5px auto;
+      display: block;
+      padding: 0px;
+    }
+    /* CAPA PROTECTORA PERSONALIZADA */
+    #antiCaptureLayer {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      backdrop-filter: blur(12px);
+      background: rgba(10,22,50,0.54);
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: #fff;
+      font-size: 2vw;
+      font-weight: bold;
+      text-align: center;
+      pointer-events: all;
+      transition: opacity 0.5s;
+    }
+    #antiCaptureLayer button {
+      margin-top:28px;
+      background: #013177;
+      color: #fff;
+      font-size: 1vw;
+      font-weight: bold;
+      border-radius: 8px;
+      padding: 11px 32px;
+      border: none;
+      box-shadow: 0 1px 10px #001b;
+      }
+    #antiCaptureLayer img {
+      width:120px;
+      margin-bottom:2vw;
+      border-radius:10px;
+      box-shadow:0 2px 12px #0009;
+    }
+/* Responsive */
+@media (max-width:1200px){
+  .layout-container {
+    flex-direction: column;
+    height: auto; min-height: unset;
+  }
+  .sidebar, #visor-container, #docsBox {
+    min-width: 0; max-width: 100vw; width: 98vw;
+    border-radius: 14px;
+    box-shadow: 0 1px 7px #8886;
+    margin: 0 auto 8px auto;
+    height: auto;
+  }
+  #infoBox { 
+    max-height: none;   /* <-- sobrescribe max-height en portátil */
+  }
+  #formManttoBoxFixed {
+    max-height: 180px;  /* Ajusta según laptop, CON scroll si overflow */
+     overflow-y: auto;
+  }
+}  
+  </style>
+</head>
+
+<body>
+ <div class="layout-container">
+<!-- Panel lateral izquierdo, infobox  y el formulario de mantenimiento -->
+
+<div class="sidebar left">
+      <div id="infoBox"></div>
+      <div class="flex-spacer"></div>
+       <div id="formManttoBoxFixed">
+  <iframe
+    src="https://docs.google.com/forms/d/e/1FAIpQLSccZ0cBkF3PIuOTYGY0R-HDtr0GpFoqZK13OkahqmhdRiWIRQ/viewform?usp=header"  
+     width="100%"
+    height="340"
+    frameborder="0"
+    style="border-radius:10px; box-shadow:0 2px 8px #555;">
+    Cargando…
+  </iframe>
+</div>
+</div>
+<!-- Contenedor del visor 3D centro -->
+<div id="visor-container">
+  <!-- ============== LOGOS ============== -->
+  <img id="logosedima" src="Activos/Logos/LogoSedima.png" alt="Logo Sedima" />
+  <img id="logocliente" src="Activos/Logos/LogoCliente.png" alt="Logo Cliente" />
+  <div class="visor-download-btns-col">
+   <button id="downloadProjectZip" class="visor-download-btn">
+🗂️ DESCARGAR DOCUMENTACIÓN
+</button>
+ <button id="downloadDossierZip" class="visor-download-btn">
+🗂️ DESCARGAR DOSSIER DE CONSTRUCCIÓN
+</button>
+
+</div>
+</div>
+
+ <!-- Lado derecho -->
+    <div class="sidebar right" >
+    <div id="docsBox">
+ <!-- Tus documentos se insertarán aquí vía JS -->
+    </div>
+  </div>
+
+</div>
+<!-- ============== MODAL VISOR DE PDF ============== -->
+<div id="pdfModal" style="display:none; 
+position:fixed; 
+top:0; 
+left:0; 
+width:100%; 
+height:100%; 
+background: rgba(0,0,0,0.7); 
+justify-content:center;
+align-items:center;
+z-index:999;">
+  <div style="position: relative; 
+    width: 90%;
+    max-width: 800px; 
+    height: 90%;">
+    <iframe id="pdfFrame" 
+      src="" style="width: 100%; 
+      height: 100%; 
+      border: none; 
+      border-radius: 12px;">
+    </iframe>
+    <button id="closePdfModal" style="position: absolute; 
+      top: 10px; 
+      right: 10px; 
+      background: #f44336; 
+      color: white; 
+      border: none; 
+      border-radius: 50%; 
+      width: 32px;
+      height: 32px; 
+      cursor: pointer; 
+      font-size: 18px;">✖</button>
+  </div>
+</div>
+ <!-- CAPA ANTICAPTURA: DEBE IR AQUÍ, fuera de <script> -->
+  <div id="antiCaptureLayer">
+    <img src="Activos/Logos/LogoSedima.png" alt="Logo Empresa" />
+    <div>SISTEMA ANTICAPTURAS</div>
+    <div style="font-size: 1.2vw; font-weight:normal; margin-top:18px; max-width:450px;">
+      ⚠️ Por seguridad, se ha bloqueado la visualización tras detectar un intento de captura de pantalla o recorte.<br>
+      Para continuar, cierre esta advertencia.
+    </div>
+    <button onclick="document.getElementById('antiCaptureLayer').style.display='none'">
+      VOLVER AL VISOR
+    </button>
+  </div>
+
+<!-- Librerías necesarias -->
+<script src="libs/three.min.js"></script>
+<script src="libs/GLTFLoader.js"></script>
+<script src="libs/OrbitControls.js"></script>
+<script>
+
+/* --- ANTICAPTURAS --- */
+
+let proteccionActiva = false;  // <-- por defecto está activada
+function activarProteccion() {
+  if (!proteccionActiva) return; 
+  if (!overlayActivo) {
+    antiCapture.style.display = 'flex';
+    overlayActivo = true;
+  }
+}
+function desactivarProteccion() {
+  if (overlayActivo) {
+    antiCapture.style.display = 'none';
+    overlayActivo = false;
+  }
+}
+
+// Bloquear clic derecho (excepto en el visor)
+document.addEventListener('contextmenu', e => {
+  if (!proteccionActiva) return;
+  if (e.target.closest('#visor-container')) return; 
+  e.preventDefault();
+});
+
+// ======================
+// Funciones de Fullscreen
+function activarFullscreen(element) {
+  if (element.requestFullscreen) {
+    element.requestFullscreen();
+  } else if (element.webkitRequestFullscreen) {
+    element.webkitRequestFullscreen();
+  } else if (element.msRequestFullscreen) {
+    element.msRequestFullscreen();
+  }
+}
+function salirFullscreen() {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  }
+}
+
+// ======================
+// Protección Anticaptura Mejorada
+const antiCapture = document.getElementById('antiCaptureLayer');
+let overlayActivo = false;
+
+// Mostrar/Ocultar overlay
+function activarProteccion() {
+  if (!overlayActivo) {
+    antiCapture.style.display = 'flex';
+    overlayActivo = true;
+  }
+}
+function desactivarProteccion() {
+  if (overlayActivo) {
+    antiCapture.style.display = 'none';
+    overlayActivo = false;
+  }
+}
+
+// ======================
+// Función para permitir interacción en formularios/inputs
+
+function esCampoEditable(target) {
+  const tag = target.tagName.toLowerCase();
+  return (
+    tag === 'input' ||
+    tag === 'textarea' ||
+    target.isContentEditable ||
+    target.closest('#formManttoBoxFixed') ||  // permite Forms embebidos
+    target.closest('#pdfModal')               // permite visor de PDFs
+  );
+}
+
+
+// Detectar PrintScreen, F10, combinaciones Ctrl y Snipping Tool
+document.addEventListener('keydown', e => {
+   if (!proteccionActiva) return;
+  if (esCampoEditable(e.target)) return; // ✅ NO activar en Forms ni inputs
+  if (
+    e.key === 'PrintScreen' || e.key === 'F10' ||
+    (e.ctrlKey && ['c','x','s','p'].includes(e.key.toLowerCase())) ||
+    (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 's') // Snipping Tool
+  ) {
+    e.preventDefault();
+    activarProteccion();
+  }
+});
+
+// Detectar atajos de Mac (Cmd+Shift+3 o 4)
+document.addEventListener('keyup', e => {
+  if (!proteccionActiva) return;
+   if (esCampoEditable(e.target)) return; // ✅ NO activar en Forms ni inputs
+
+  if (
+    e.key === 'PrintScreen' || e.key === 'F10' ||
+    (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4'))
+  ) {
+    activarProteccion();
+  }
+});
+
+// Detectar cambio de pestaña o minimizar
+document.addEventListener('visibilitychange', () => {
+  if (!proteccionActiva) return;
+  // 👇 Solo activa protección si NO estás escribiendo en el iframe del form
+  const activoCampo = document.activeElement?.closest('#formManttoBoxFixed');
+ if (document.hidden && !activoCampo) {
+    activarProteccion();
+ } 
+});
+// Detectar pérdida de foco de la ventana
+window.addEventListener('blur', () => {
+  if (!proteccionActiva) return;
+  const activoCampo = document.activeElement?.closest('#formManttoBoxFixed');
+  if (!activoCampo) {
+    activarProteccion();
+  }
+});
+
+// Cerrar overlay al hacer clic en el fondo difuminado o en el botón
+antiCapture.addEventListener('click', e => {
+  if (!proteccionActiva) return;
+  if (e.target === antiCapture || e.target.tagName === "BUTTON") {
+    desactivarProteccion();
+  }
+});
+
+
+/* ============== VARIABLES PRINCIPALES DEL VISOR ============== */
+const container = document.getElementById('visor-container');
+const infoBox = document.getElementById('infoBox');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#cccccc");
+const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+camera.position.set(3, 3, 3);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(container.clientWidth, container.clientHeight);
+container.appendChild(renderer.domElement);
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x444444, 1));
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(5, 10, 7.5); // posición arbitraria
+scene.add(directionalLight);
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let selectableObjects = [];
+let selectedObject = null;
+let originalMaterial = null;
+const highlightMaterial = new THREE.MeshStandardMaterial({ color: "#C9AE5D", metalness: 0.4, roughness: 0.2 });
+
+/* ============== CARGA DEL CSV GENERAL CON TODOS LOS ELEMENTOS ============== */
+let datosElementos = {};
+fetch('Datos/CSV1.csv')
+  .then(response => response.text())
+  .then(data => {
+    const lines = data.trim().split('\n');
+    const headers = lines[0].split(';');
+    lines.slice(1).forEach(line => {
+      const values = line.split(';');
+      let obj = {};
+      headers.forEach((header, index) => {
+        obj[header.trim()] = values[index] ? values[index].trim() : "";
+      });
+      datosElementos[obj.nombre_original] = obj;
+    });
+    cargarModelo();
+  })
+  .catch(err => {
+    console.error("Error cargando todos_los_elementos.csv", err);
+    cargarModelo();
+  });
+
+function cargarModelo() {
+  const loader = new THREE.GLTFLoader();
+  loader.load('Activos/Modelos/modelo.glb', function (gltf) {
+    const model = gltf.scene;
+    model.traverse(child => {
+      if (child.isMesh) {
+        selectableObjects.push(child);
+      }
+    });
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const scale = 2 / maxDim;
+    model.scale.set(scale, scale, scale);
+    model.position.sub(center.multiplyScalar(scale));
+    scene.add(model);
+  }, undefined, error => {
+    console.error("Error cargando modelo:", error);
+  });
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = container.clientWidth / container.clientHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(container.clientWidth, container.clientHeight);
+});
+
+
+
+/* ============== MANEJO DEL CLICK PARA SELECCIONAR y MOSTRAR INFO ============== */
+container.addEventListener('click', (event) => {
+  const rect = container.getBoundingClientRect();
+  mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const intersects = raycaster.intersectObjects(selectableObjects, true);
+  if (intersects.length > 0) {
+    const clickedObject = intersects[0].object;
+    if (selectedObject && originalMaterial) {
+      selectedObject.material = originalMaterial;
+    }
+    selectedObject = clickedObject;
+    originalMaterial = clickedObject.material;
+    clickedObject.material = highlightMaterial;
+
+    const nombre = clickedObject.name;
+    const data = datosElementos[nombre];
+    if (data) {
+      let titulo = data.nombre_amigable && data.nombre_amigable.trim() !=="" ? data.nombre_amigable : nombre;
+      titulo = titulo.replace(/^"(.*)"$/, '$1');
+      titulo = titulo.replace(/""/g, '"');
+      let html =  `
+  <div class="infoBox-main-title">INFORMACIÓN TÉCNICA ESPECIFICA</div>
+  <div style="text-align:center; font-weight:bold; font-size:18px; margin-bottom:8px;">${titulo}</div>
+`;
+     
+
+      if (data.Imagen) {
+        html += `<img src="${data.Imagen}" alt="${titulo}" class="element-img"><br>`;
+      }
+
+      Object.keys(data).forEach(key => {
+        let lowerKey = key.toLowerCase().trim();
+        if (!["nombre_original", "nombre_amigable", "imagen", "técnificha",].includes(lowerKey)) {
+          html += `<strong>${key}:</strong> ${data[key] || 'N/A'}<br>`;
+        }
+      });
+
+
+      if (data["TécniFicha"]) {
+        html += `<button class="pdf-button" onclick="openPdfModal('${data["TécniFicha"]}')">🧾 TécniFicha</button>`;
+      }
+
+      infoBox.innerHTML = html;
+      infoBox.style.display = "block";
+    } else {
+      infoBox.innerHTML = `<strong>${nombre}</strong><br>Sin datos disponibles`;
+      infoBox.style.display = "block";
+    }
+  } else {
+    infoBox.style.display = "none";
+  }
+});
+/* ============== animación ============== */
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+
+/* ============== CARGAR Y MOSTRAR DOCUMENTOS DE INGENIERÍA AGRUPADOS ============== */
+
+const docsBox = document.getElementById('docsBox');
+docsBox.innerHTML = "<h3 style='text-align:center;'> ESTRUCTURA DOCUMENTAL DE INGENIERÍA </h3>";
+
+
+// 2. Cargar JSON estructurado
+fetch('Activos/Documentos_ingeniería/documentos.json')
+  .then(response => response.json())
+  .then(data => {
+    data.forEach(categoria => {
+      const catTitle = document.createElement('h4');
+      catTitle.textContent = categoria.categoria;
+      catTitle.style.marginTop = "12px";
+      catTitle.style.borderBottom = "1px solid #fff";
+      catTitle.style.paddingBottom = "4px";
+      docsBox.appendChild(catTitle);
+
+      categoria.documentos.forEach(doc => {
+        const link = document.createElement('a');
+        link.href = "#";
+        link.textContent = `📑 ${doc.nombre}`;
+        link.classList.add("doc-link");
+
+        if (doc.url) {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPdfModal(doc.url);
+          });
+        } else {
+          link.style.opacity = "0.5";
+          link.style.pointerEvents = "none";
+        }
+        docsBox.appendChild(link);
+      });
+    });
+  })
+  .catch(err => {
+    console.error("Error cargando documentos.json", err);
+    docsBox.innerHTML += "<p>Error cargando documentos.</p>";
+  });
+
+/* ============== CONTROL DEL MODAL PDF ============== */
+const pdfModal = document.getElementById('pdfModal');
+const pdfFrame = document.getElementById('pdfFrame');
+const closePdfModal = document.getElementById('closePdfModal');
+
+function openPdfModal(url) {
+  pdfFrame.src = url;
+  pdfModal.style.display = "flex";
+}
+
+
+closePdfModal.addEventListener('click', () => {
+  pdfModal.style.display = "none";
+  pdfFrame.src = "";
+  
+});
+
+/* ============== BOTÓN DE DESCARGA DOCUMENTACIÓN ============== */
+document.getElementById('downloadProjectZip').addEventListener('click', function() {
+  window.location.href = 'Activos/DESCARGAR DOCUMENTACIÓN.zip'; 
+});
+document.getElementById('downloadDossierZip').addEventListener('click', function() {
+  window.location.href = 'Activos/DESCARGAR DOSSIER DE CONSTRUCCIÓN.zip';
+});
+
+ 
+</script>
+</body>
+</html>
